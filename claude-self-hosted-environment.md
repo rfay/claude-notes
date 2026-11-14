@@ -121,6 +121,13 @@ Stop or reload with `launchctl bootout gui/$(id -u)/com.anthropic.claude-self-ho
   up separately. `--use-anthropic-git-proxy` is the managed alternative, and it
   rewrites the user's global git config.
 
+## Status
+
+Running on `macos-claude` since 2026-11-14 and serving sessions: launchd shows
+it `running`, the log has one `Registered: runner_id=...`, and the error log is
+empty. Not yet observed: the `KeepAlive` restart after the runner exits at the
+end of a session, and startup after a reboot.
+
 ## Getting Claude to do this
 
 Claude Code didn't know the runner's commands from memory, and
