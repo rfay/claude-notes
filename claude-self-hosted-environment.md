@@ -31,6 +31,9 @@ defaults read /Library/Preferences/com.apple.loginwindow autoLoginUser   # testb
 pmset -g | grep ' sleep'                                                  # 0
 ```
 
+On a MacBook, `sleep 0` doesn't cover closing the lid; see
+[Keeping a remote MacBook awake](macos-keep-awake.md).
+
 ### 1. Directories
 
 ```bash

@@ -9,6 +9,7 @@ broke, and what to do differently next time.
 | [Claude self-hosted environment on macOS](claude-self-hosted-environment.md) | Running `claude self-hosted-runner` as a LaunchAgent that starts at boot |
 | [Tailscale complexities](tailscale-complexities.md) | Tailscale SSH policy denials, tags versus owned devices, screen sharing paths |
 | [macOS Screen Sharing and Remote Management](macos-screen-sharing.md) | Why Screen Sharing rejected a correct password, and the `kickstart` fix |
+| [Keeping a remote MacBook awake](macos-keep-awake.md) | Letting a runner keep working with its lid closed |
 
 The machine in these notes is `macos-claude`, an Apple Silicon Mac on macOS 27,
 reached over a Tailscale tailnet, with an auto-login `testbot` user.
