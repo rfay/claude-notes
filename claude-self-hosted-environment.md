@@ -120,9 +120,10 @@ Stop or reload with `launchctl bootout gui/$(id -u)/com.anthropic.claude-self-ho
 * Anyone with the key can register runners and take sessions queued on the
   environment. Rotate it from the environment's Configuration tab if it leaks.
   It expires 365 days after creation.
-* Git push from sessions needs credentials that work without a prompt; set those
-  up separately. `--use-anthropic-git-proxy` is the managed alternative, and it
-  rewrites the user's global git config.
+* This LaunchAgent alone gives sessions no git credentials and copies the
+  runner account's `~/.claude` into every session. For an org, add the git
+  proxy, host config and cleanup settings in
+  [Git and config for a runner that serves an org](self-hosted-runner-org-git.md).
 
 ## Status
 
