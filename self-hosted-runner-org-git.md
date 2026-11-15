@@ -137,6 +137,15 @@ Observed on `macos-claude`, Claude Code 2.1.325:
 * The runner resets checkouts when it prepares a session. After the restart,
   the `ddev/ddev` checkout was on the session's branch, and a remote added by
   hand earlier (`rfay`) was gone. Local branches and commits stayed.
+* Twice in one session, git lost its connection: `Failed to connect to
+  127.0.0.1 port 62329`. The runner had rewritten the session's git config
+  (`<base-dir>/_sessions/<id>.gitconfig`, `http.https://github.com/.proxy`)
+  with a port nothing listened on, once after the session's folders changed and
+  once after `add_repo`. The session's own `claude` process still listened on
+  its original port, found with
+  `lsof -nP -iTCP -sTCP:LISTEN | grep claude`, and
+  `git -c http.https://github.com/.proxy=http://127.0.0.1:<that port> ...`
+  worked. Probably a runner bug worth reporting.
 * `gh` is a shim that supports only `gh api`, so open PRs with
   `gh api repos/{owner}/{repo}/pulls` or the GitHub MCP tools.
 * The runner doesn't install the commit-and-push reminder that Anthropic-hosted
