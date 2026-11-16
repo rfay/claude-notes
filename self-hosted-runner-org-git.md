@@ -207,8 +207,11 @@ runner plist's `EnvironmentVariables`. A per-owner token through an
 
 ## Open questions
 
-* Do plugins in the host config directory reach sessions? The docs don't say,
-  and it matters for marketplace plugins such as `ddev/agent-skills`.
+* Do plugins in the host config directory reach sessions? The docs don't say.
+  Sessions do get the claude.ai account's and organization's plugins and
+  skills: they land in the session's config under `plugins/synced/` and
+  `skills/synced/`. Adding `ddev/agent-skills` to the claude.ai plugin catalog
+  is probably the way to get it into sessions, but nobody has tried it yet.
 * Is one runner enough, or do we need several runners or the orchestrator so
   more than one person can use the environment at once? Idle release shortens
   the wait but still serves one session at a time. Archiving a session in the
