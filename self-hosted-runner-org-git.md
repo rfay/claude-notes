@@ -53,9 +53,20 @@ The runner started with only `--environment-secret-file`, `--base-dir`,
   at startup… applies to every session." Set
   `SELF_HOSTED_RUNNER_HOST_CONFIG_DIR` to an org-neutral directory. Users'
   claude.ai account skills still reach the sessions they start.
+* **Idle sessions hold the runner.** Anthropic sends each session an idle
+  limit (about 30 minutes in our experience on coder.ddev.com), but the runner
+  applies it only on Linux. On macOS a session keeps the runner until it ends
+  or is archived, and every other session waits in the queue. Set
+  `--release-idle-session-min` to release idle sessions on any OS. A released
+  session isn't lost: the conversation is stored server-side, and the user's
+  next message resumes it on whichever runner is free.
 * **Leftover state is readable.** Without `--remove-session-state`, each
   session's transcript copy, debug log and session directory stay under
-  `<base-dir>/_sessions/`, readable by later sessions.
+  `<base-dir>/_sessions/`, readable by later sessions. Removing them doesn't
+  stop a session from resuming, because the transcript lives server-side.
+  What goes is anything the session wrote in its own directory
+  (`<base-dir>/_sessions/<id>/`), such as a repo it cloned there by hand.
+  Canonical clones under `<base-dir>/<owner>/<repo>` stay.
 
 ## Prescription
 
@@ -71,6 +82,12 @@ For a GitHub-hosted org on a single macOS runner:
    * `--configure-git`: commit identity `Claude <noreply@anthropic.com>` and
      signing through Anthropic's service.
    * `--remove-session-state`: deletes each session's state when it ends.
+   * `--release-idle-session-min 30`: releases a session after 30 minutes
+     with no user message, so the next person's session can start.
+   * `--push-outcome-on-release`: pushes the session's `claude/...` branch
+     before a release deletes it locally, and fetches it back on resume.
+     Without it, unpushed commits on that branch are lost. Uncommitted
+     changes may still be lost, so commit and push before stepping away.
 3. Set `SELF_HOSTED_RUNNER_HOST_CONFIG_DIR` to an org-neutral directory. It
    starts empty; add an org `CLAUDE.md`, skills or hooks there, and restart
    the runner after changes, since it reads the directory only at startup.
@@ -87,6 +104,8 @@ changes like this:
     <string>--use-anthropic-git-proxy</string>
     <string>--configure-git</string>
     <string>--remove-session-state</string>
+    <string>--release-idle-session-min</string><string>30</string>
+    <string>--push-outcome-on-release</string>
     ...
   <key>EnvironmentVariables</key>
   <dict>
@@ -191,6 +210,10 @@ runner plist's `EnvironmentVariables`. A per-owner token through an
 * Do plugins in the host config directory reach sessions? The docs don't say,
   and it matters for marketplace plugins such as `ddev/agent-skills`.
 * Is one runner enough, or do we need several runners or the orchestrator so
-  more than one person can use the environment at once?
+  more than one person can use the environment at once? Idle release shortens
+  the wait but still serves one session at a time. Archiving a session in the
+  Claude app also frees the runner at once.
+* Does `--release-idle-session-min` skip sessions with uncommitted changes,
+  as Anthropic's own idle limit does? The help doesn't say.
 * GitHub's view of the commit signatures: does GitHub show the runner-signed
   commits as Verified?
