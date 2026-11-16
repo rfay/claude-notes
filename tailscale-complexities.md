@@ -87,3 +87,18 @@ Notes:
   how to confirm a tag took effect.
 * Tag owners must be saved in the policy before a node advertises the tag, or
   the tag is silently refused.
+
+## Tailscale SSH always exits 0
+
+`ssh testbot@macos-claude 'exit 3'; echo $?` prints `0` over Tailscale SSH (seen
+with tailscaled 1.104.6). The remote command's exit status is lost, so loops
+like `until ssh host 'grep -q ...'; do sleep 5; done` end at once, and
+`ssh host cmd && next` always runs `next`. Test the command's output instead:
+
+```bash
+until [ "$(ssh host 'grep -c pattern file')" -ge 1 ]; do sleep 5; done
+```
+
+Also, a non-interactive command over Tailscale SSH got a PATH without
+`/usr/sbin`, so `sysctl`, `lsof`, `spctl`, and `systemsetup` were "command not
+found". Use full paths.

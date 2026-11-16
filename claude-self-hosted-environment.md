@@ -137,7 +137,38 @@ exiting ... Orchestrator will restart", and launchd's `KeepAlive` restarted it
 about a second later. It registered again with no errors. This happened with
 the lid closed (see [Keeping a remote MacBook awake](macos-keep-awake.md)).
 
-Not yet observed: startup after a reboot.
+### After a reboot
+
+With `testbot` auto-login, launchd starts the runner at login. On 2026-11-16:
+
+| Boot | Runner registered |
+| --- | --- |
+| 07:11 (first boot after moving and plugging in the Mac) | 08:14, after about an hour |
+| 08:49 | 08:50, about 1.5 minutes |
+| 08:57 | 08:58, 47 seconds |
+
+On the slow boot, macOS held every launch of the `claude` binary, including a
+plain `claude --version`, before it ran any code:
+
+* `sample <pid>` showed only `_dyld_start`, with a 112 KB footprint.
+* The kernel logged
+  `ASP: Security policy would not allow process: .../claude-code@latest/2.1.325/claude`.
+* All waiting launches were released together at 08:14:40, when `syspolicyd`
+  logged `GK evaluateScanResult` for them. Other programs (Docker, Chrome,
+  Homebrew tools) weren't held.
+
+Removing the `com.apple.quarantine` attribute didn't release them. Restarting
+the agent (`launchctl kickstart -k`) didn't either; the new process waited too.
+The cause is unknown and it hasn't recurred. Chrome Remote Desktop was
+installed between the slow boot and the fast ones, which may or may not matter.
+
+If a runner doesn't register after boot, check whether the binary runs at all
+before debugging the runner:
+
+```bash
+(claude --version > /tmp/cv.txt 2>&1 &); sleep 8; cat /tmp/cv.txt   # empty means held
+log show --last 1h --predicate 'eventMessage CONTAINS "ASP:"' --style compact
+```
 
 **Don't reload the LaunchAgent from inside a session on this runner.**
 `launchctl bootout` sends the runner SIGTERM, which interrupts the session that
