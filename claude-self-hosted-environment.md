@@ -129,8 +129,19 @@ Stop or reload with `launchctl bootout gui/$(id -u)/com.anthropic.claude-self-ho
 
 Running on `macos-claude` since 2026-11-14 and serving sessions: launchd shows
 it `running`, the log has one `Registered: runner_id=...`, and the error log is
-empty. Not yet observed: the `KeepAlive` restart after the runner exits at the
-end of a session, and startup after a reboot.
+empty.
+
+Observed 2026-11-16: when a session ended (released by
+`--release-idle-session-min`), the runner logged "account workload drained —
+exiting ... Orchestrator will restart", and launchd's `KeepAlive` restarted it
+about a second later. It registered again with no errors. This happened with
+the lid closed (see [Keeping a remote MacBook awake](macos-keep-awake.md)).
+
+Not yet observed: startup after a reboot.
+
+**Don't reload the LaunchAgent from inside a session on this runner.**
+`launchctl bootout` sends the runner SIGTERM, which interrupts the session that
+issued it. Change the plist from another machine, between sessions.
 
 ## Getting Claude to do this
 
