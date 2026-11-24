@@ -79,8 +79,10 @@ For a GitHub-hosted org on a single macOS runner:
 2. Add these flags to the runner:
    * `--use-anthropic-git-proxy`: git authenticates as the session's creator,
      with no credentials on the host.
-   * `--configure-git`: commit identity `Claude <noreply@anthropic.com>` and
-     signing through Anthropic's service.
+   * Not `--configure-git`, which makes every commit Claude's. A
+     `SessionStart` hook sets the commit identity to the session's GitHub
+     account instead; see
+     [Commit identity and signed commits](commit-identity-and-signing.md).
    * `--remove-session-state`: deletes each session's state when it ends.
    * `--release-idle-session-min 30`: releases a session after 30 minutes
      with no user message, so the next person's session can start.
@@ -102,7 +104,6 @@ changes like this:
 ```xml
     <string>--client-label</string><string>macos-claude</string>
     <string>--use-anthropic-git-proxy</string>
-    <string>--configure-git</string>
     <string>--remove-session-state</string>
     <string>--release-idle-session-min</string><string>30</string>
     <string>--push-outcome-on-release</string>
