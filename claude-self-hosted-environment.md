@@ -124,6 +124,10 @@ Stop or reload with `launchctl bootout gui/$(id -u)/com.anthropic.claude-self-ho
   runner account's `~/.claude` into every session. For an org, add the git
   proxy, host config and cleanup settings in
   [Git and config for a runner that serves an org](self-hosted-runner-org-git.md).
+* Don't leave a full `gh` login on `testbot`: sessions can call
+  `/opt/homebrew/bin/gh` directly and act as whoever it is logged in as. For
+  reading GitHub outside a session's repositories, see
+  [Read-only GitHub for sessions](macos-runner-gh-read.md).
 
 ## Status
 
